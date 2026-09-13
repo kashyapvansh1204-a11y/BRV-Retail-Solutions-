@@ -1,0 +1,33 @@
+name: Build BRV Retail Solutions APK
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "BRV_Retail_Solutions_Android_Project.zip"
+      - ".github/workflows/build-apk.yml"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Extract Android project
+        run: |
+          unzip -q BRV_Retail_Solutions_Android_Project.zip -d extracted
+          cd extracted/BRVRetailSolutionsApp
+          gradle wrapper --gradle-version 8.7
+          chmod +x gradlew
+
+      - name: Build APK
+        working-directory: extracted/BRVRetailSolutionsApp
+        run: ./gradlew assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: BRV-Retail-Solutions-APK
+          path: extracted/BRVRetailSolutionsApp/app/build/outputs/apk/debug/app-debug.apk
